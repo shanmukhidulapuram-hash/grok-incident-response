@@ -1,0 +1,116 @@
+{
+  "incidents": [
+    {
+      "id": "INC-2847",
+      "date": "2025-03-12",
+      "service": "PaymentService",
+      "severity": "High rate of 502 errors after blue-green deployment of v2.3.1. Error rate spiked to 18% within 4 minutes of traffic shift.",
+      "root_cause": "Missing REDIS_HOST environment variable in the new deployment slot. The previous slot still had the variable; the new one did not. Connection attempts to Redis failed silently and bubbled up as 502s.",
+      "resolution": "1. Identified missing env var via Application Insights exception stack.\n2. Added REDIS_HOST to the deployment configuration.\n3. Restarted affected pods.\n4. Confirmed error rate returned to baseline within 3 minutes.\nMTTR: 47 minutes.",
+      "tags": [
+        "deployment",
+        "config",
+        "redis",
+        "502",
+        "payments"
+      ],
+      "runbook": "PaymentService 5xx"
+    },
+    {
+      "id": "INC-3102",
+      "date": "2025-06-03",
+      "service": "PaymentService",
+      "severity": "Intermittent 502/503 responses and elevated latency under moderate load. Connection pool metrics showed saturation.",
+      "root_cause": "Database connection pool exhausted after a recent increase in concurrent checkout traffic. Max pool size was still set to the previous traffic baseline.",
+      "resolution": "1. Scaled connection pool max size from 20 \u2192 50.\n2. Added circuit-breaker and retry with backoff.\n3. Temporary horizontal scale of PaymentService replicas.\nMTTR: 68 minutes.",
+      "tags": [
+        "connection-pool",
+        "database",
+        "latency",
+        "502",
+        "payments"
+      ],
+      "runbook": "PaymentService 5xx"
+    },
+    {
+      "id": "INC-1991",
+      "date": "2025-01-18",
+      "service": "OrdersService",
+      "severity": "P95 latency on GET /orders jumped from 80ms to 2.4s after a schema migration. CPU on primary Azure SQL instance elevated.",
+      "root_cause": "Missing covering index on (customer_id, created_at) after migration dropped and recreated the Orders table without re-applying the index.",
+      "resolution": "1. Identified missing index via Query Performance Insight.\n2. Created IX_Orders_CustomerCreated ONLINE.\n3. Latency dropped ~80% within minutes.\nMTTR: 32 minutes.",
+      "tags": [
+        "database",
+        "index",
+        "latency",
+        "orders",
+        "migration"
+      ],
+      "runbook": "High DB Latency"
+    },
+    {
+      "id": "INC-2650",
+      "date": "2025-02-18",
+      "service": "ConfigSync / Platform",
+      "severity": "Canary deployment of several microservices failed health checks. Readiness probes timed out repeatedly. Rollback triggered automatically.",
+      "root_cause": "Race condition in ConfigMap update during canary. The new pods started before the updated ConfigMap was fully propagated, causing missing configuration and readiness failures.",
+      "resolution": "1. Paused canary.\n2. Increased readinessProbe.initialDelaySeconds from 5 \u2192 15.\n3. Added explicit wait for ConfigMap sync in the deployment pipeline.\n4. Resumed canary successfully.\nMTTR: 41 minutes.",
+      "tags": [
+        "canary",
+        "deployment",
+        "configmap",
+        "kubernetes",
+        "readiness"
+      ],
+      "runbook": "Canary Rollback"
+    },
+    {
+      "id": "INC-2210",
+      "date": "2025-04-09",
+      "service": "AuthService",
+      "severity": "Spike in 401/403 responses and elevated login latency. Token validation service showed high error rates.",
+      "root_cause": "Certificate rotation on the internal JWT signing key was incomplete. Some instances still used the old key while traffic was already using the new one.",
+      "resolution": "1. Forced full rollout of the new signing key across all AuthService instances.\n2. Cleared related caches.\n3. Verified token validation success rate returned to 99.99%.\nMTTR: 55 minutes.",
+      "tags": [
+        "auth",
+        "jwt",
+        "certificate",
+        "401"
+      ],
+      "runbook": "Auth Token Failures"
+    }
+  ],
+  "runbooks": [
+    {
+      "name": "PaymentService 5xx",
+      "steps": [
+        "Check Application Insights / Azure Monitor for exception type and stack",
+        "Verify environment variables and secrets in the current deployment slot",
+        "Compare config with last known-good version",
+        "Inspect Redis / DB connection pool metrics",
+        "Restart pods or scale out if resource saturation is confirmed",
+        "If config change is required, apply and re-verify error rate"
+      ]
+    },
+    {
+      "name": "High DB Latency",
+      "steps": [
+        "Open Azure Monitor \u2192 Query Performance Insight (or equivalent)",
+        "Identify top resource-consuming queries",
+        "Check for recent schema / index changes",
+        "Temporary mitigation: scale read replicas or increase DTUs",
+        "Permanent fix: add missing indexes, rewrite hot queries, or adjust connection settings"
+      ]
+    },
+    {
+      "name": "Canary Rollback",
+      "steps": [
+        "Pause the progressive delivery / canary",
+        "Diff ConfigMaps, Secrets, and environment between canary and stable",
+        "Inspect readiness / liveness probe settings",
+        "Apply known-good probe delays or config fixes",
+        "Resume canary with smaller traffic percentage or full rollback"
+      ]
+    }
+  ]
+}

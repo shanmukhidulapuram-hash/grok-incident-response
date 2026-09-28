@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hindsight Incident Copilot | AI Incident Response Agent</title>
+  <meta name="description" content="AI-powered Incident Response Agent powered by Hindsight + Microsoft Azure" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              950: '#0a0e17',
+              900: '#111827',
+              800: '#1a2234',
+              700: '#1f2a3f',
+              600: '#2a3649',
+              500: '#3a4a63',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.18), transparent);
+    }
+    .message-user { border-bottom-right-radius: 4px; }
+    .message-agent { border-bottom-left-radius: 4px; }
+    .typing span { animation: bounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    .sim-bar { transition: width 0.8s ease; }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-dark-950 text-slate-100 antialiased">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-dark-950/85 backdrop-blur-xl border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 font-bold text-lg">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-lg">⚡</div>
+        <span>Hindsight Incident Copilot</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+        <a href="#features" class="hover:text-white transition">Features</a>
+        <a href="#demo" class="hover:text-white transition">Live Demo</a>
+        <a href="#architecture" class="hover:text-white transition">Architecture</a>
+        <a href="#impact" class="hover:text-white transition">Impact</a>
+        <a href="#demo" class="ml-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition">Try Demo</a>
+      </div>
+    </div>
+  </nav>
+  <section class="hero-gradient pt-32 pb-20 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-sm font-semibold mb-6">
+        🏆 Microsoft Hackathon Project
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+        AI that remembers how your team<br class="hidden md:block" />
+        <span class="gradient-text">fixed production yesterday</span>
+      </h1>
+      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+        An Incident Response Agent powered by <strong class="text-slate-200">Hindsight</strong> agent memory + Microsoft Azure.
+        It retains, recalls, and reflects on every past incident so engineers resolve today's failures faster.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#demo" class="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition shadow-lg shadow-blue-500/25">
+          Launch Interactive Demo →
+        </a>
+        <a href="#architecture" class="px-7 py-3.5 bg-dark-800 hover:bg-dark-700 border border-dark-600 text-white font-semibold rounded-lg transition">
+          View Architecture
+        </a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-12 mt-16">
+        <div class="text-center">
+          <div class="text-3xl font-bold gradient-text">40-70%</div>
+          <div class="text-sm text-slate-500 mt-1">MTTR Reduction Target</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold gradient-text">94.6%</div>
+          <div class="text-sm text-slate-500 mt-1">Hindsight LongMemEval</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold gradient-text">∞</div>
+          <div class="text-sm text-slate-500 mt-1">Institutional Knowledge</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-20 px-6 bg-dark-900">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">The Problem</h2>
+        <p class="text-slate-400 text-lg max-w-xl mx-auto">Production incidents keep happening. The knowledge to fix them already exists — it's just scattered and hard to find under pressure.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7 hover:border-dark-500 transition">
+          <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-2xl mb-4">🔍</div>
+          <h3 class="text-xl font-semibold mb-2">Knowledge Scattered</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Post-mortems, tickets, runbooks, logs and Slack threads live in different systems. Engineers waste critical minutes searching.</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7 hover:border-dark-500 transition">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center text-2xl mb-4">⏱️</div>
+          <h3 class="text-xl font-semibold mb-2">Longer MTTR</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Repeated troubleshooting of the same class of failures. Dependency on senior engineers who "just know" the history.</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7 hover:border-dark-500 transition">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center text-2xl mb-4">🧠</div>
+          <h3 class="text-xl font-semibold mb-2">Lost Institutional Memory</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">When experienced SREs leave or are offline, the organization loses years of hard-won incident knowledge.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="features" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">Powered by Hindsight Memory</h2>
+        <p class="text-slate-400 text-lg max-w-xl mx-auto">Not just RAG. A true agent memory system that retains, recalls, and reflects — just like human memory.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center text-2xl mb-4">📥</div>
+          <h3 class="text-xl font-semibold mb-2">Retain</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Automatically extracts World Facts, Experience Facts and Observations from every incident report, post-mortem and runbook.</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-2xl mb-4">🔎</div>
+          <h3 class="text-xl font-semibold mb-2">Recall (TEMPR)</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Four parallel strategies: Semantic + Keyword + Entity Graph + Temporal. Fused with RRF and token-budget optimization.</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-7">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center text-2xl mb-4">💭</div>
+          <h3 class="text-xl font-semibold mb-2">Reflect</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Consolidates knowledge into observations, reasons with mission & directives, and produces evidence-backed recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="demo" class="py-20 px-6 bg-dark-900">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">Interactive Demo</h2>
+        <p class="text-slate-400 text-lg max-w-xl mx-auto">Simulate a live production incident. The agent uses Hindsight memory to find similar past failures and recommend resolution steps.</p>
+      </div>
+      <div class="bg-dark-800 border border-dark-600 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="flex items-center gap-2 px-5 py-3.5 bg-dark-700 border-b border-dark-600">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+          <span class="ml-3 text-sm text-slate-400">Incident Copilot · Connected to Hindsight Memory Bank</span>
+        </div>
+        <div class="grid lg:grid-cols-2 min-h-[480px]">
+          <div class="flex flex-col border-r border-dark-600">
+            <div id="chat-messages" class="flex-1 p-5 space-y-4 overflow-y-auto max-h-[380px]"></div>
+            <div class="p-4 border-t border-dark-600">
+              <div class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Describe the incident or paste an alert..."
+                  class="flex-1 bg-dark-950 border border-dark-600 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+                <button id="send-btn" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition text-sm">Send</button>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-3" id="sample-prompts"></div>
+            </div>
+          </div>
+          <div class="p-5 bg-dark-950 overflow-y-auto max-h-[480px]">
+            <div class="mb-6">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Retrieved Evidence (Hindsight)</h4>
+              <div id="evidence-list">
+                <p class="text-slate-500 text-sm">Evidence from memory will appear here after you send an incident description.</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Memory Bank Status</h4>
+              <div class="space-y-2 text-sm">
+                <div class="bg-dark-800 border border-dark-600 rounded-lg px-3 py-2.5 flex justify-between">
+                  <span class="text-slate-400">Incidents retained</span>
+                  <strong>1,247</strong>
+                </div>
+                <div class="bg-dark-800 border border-dark-600 rounded-lg px-3 py-2.5 flex justify-between">
+                  <span class="text-slate-400">Post-mortems</span>
+                  <strong>892</strong>
+                </div>
+                <div class="bg-dark-800 border border-dark-600 rounded-lg px-3 py-2.5 flex justify-between">
+                  <span class="text-slate-400">Runbooks</span>
+                  <strong>156</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="architecture" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">Architecture</h2>
+        <p class="text-slate-400 text-lg max-w-xl mx-auto">End-to-end flow from production alert to knowledge update — built on Microsoft Azure + Hindsight.</p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-16 text-sm font-semibold">
+        <div class="bg-dark-800 border border-dark-600 rounded-lg px-4 py-3 text-center min-w-[110px]">Azure Monitor<br/>Alert</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-dark-800 border border-dark-600 rounded-lg px-4 py-3 text-center min-w-[110px]">Context<br/>Collector</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-blue-500/15 border border-blue-500/40 text-blue-400 rounded-lg px-4 py-3 text-center min-w-[110px]">Hindsight<br/>Recall</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-blue-500/15 border border-blue-500/40 text-blue-400 rounded-lg px-4 py-3 text-center min-w-[110px]">Agent<br/>Reflect</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-dark-800 border border-dark-600 rounded-lg px-4 py-3 text-center min-w-[110px]">Teams / UI<br/>Recommend</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-dark-800 border border-dark-600 rounded-lg px-4 py-3 text-center min-w-[110px]">Resolution +<br/>Post-Mortem</div>
+        <span class="text-slate-500 text-xl">→</span>
+        <div class="bg-blue-500/15 border border-blue-500/40 text-blue-400 rounded-lg px-4 py-3 text-center min-w-[110px]">Hindsight<br/>Retain</div>
+      </div>
+      <h3 class="text-2xl font-bold text-center mb-8">Microsoft Technology Stack</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">☁️</div>
+          <div class="font-semibold">Azure</div>
+          <div class="text-xs text-slate-500 mt-1">Infrastructure</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">🧠</div>
+          <div class="font-semibold">Azure OpenAI</div>
+          <div class="text-xs text-slate-500 mt-1">LLM Reasoning</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">🔍</div>
+          <div class="font-semibold">Azure AI Search</div>
+          <div class="text-xs text-slate-500 mt-1">Hybrid Retrieval</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">📊</div>
+          <div class="font-semibold">Azure Monitor</div>
+          <div class="text-xs text-slate-500 mt-1">Telemetry & Alerts</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">💬</div>
+          <div class="font-semibold">Microsoft Teams</div>
+          <div class="text-xs text-slate-500 mt-1">Collaboration</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">🤖</div>
+          <div class="font-semibold">Agent Framework</div>
+          <div class="text-xs text-slate-500 mt-1">+ Hindsight Provider</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">🧬</div>
+          <div class="font-semibold">Hindsight</div>
+          <div class="text-xs text-slate-500 mt-1">Agent Memory</div>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-5 text-center hover:border-blue-500/50 transition">
+          <div class="text-3xl mb-2">📈</div>
+          <div class="font-semibold">Microsoft Fabric</div>
+          <div class="text-xs text-slate-500 mt-1">Data Analysis</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="impact" class="py-20 px-6 bg-dark-900">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">Expected Impact</h2>
+        <p class="text-slate-400 text-lg">Measurable outcomes for SRE and DevOps teams.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-6 text-center">
+          <div class="text-3xl font-extrabold gradient-text mb-2">↓ MTTR</div>
+          <p class="text-slate-400 text-sm">Reduce Mean Time to Resolution on recurring incident classes</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-6 text-center">
+          <div class="text-3xl font-extrabold gradient-text mb-2">Consistency</div>
+          <p class="text-slate-400 text-sm">Standardized, evidence-backed response every time</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-6 text-center">
+          <div class="text-3xl font-extrabold gradient-text mb-2">Knowledge</div>
+          <p class="text-slate-400 text-sm">Preserve institutional memory when experts are unavailable</p>
+        </div>
+        <div class="bg-dark-800 border border-dark-600 rounded-xl p-6 text-center">
+          <div class="text-3xl font-extrabold gradient-text mb-2">Onboarding</div>
+          <p class="text-slate-400 text-sm">New engineers get expert-level guidance from day one</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-20 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-sm font-semibold mb-6">
+        One-line Pitch
+      </div>
+      <h2 class="text-2xl md:text-3xl font-bold leading-snug mb-6">
+        “An AI Incident Response Agent that remembers how your organization solved problems before — and uses that knowledge to help engineers resolve today's production incidents faster.”
+      </h2>
+      <p class="text-slate-400 mb-8">Built with Hindsight (vectorize-io) + Microsoft Azure OpenAI + Agent Framework</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="https://hindsight.vectorize.io/" target="_blank" rel="noopener" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition">
+          Hindsight Docs
+        </a>
+        <a href="https://github.com/vectorize-io/hindsight" target="_blank" rel="noopener" class="px-6 py-3 bg-dark-800 hover:bg-dark-700 border border-dark-600 text-white font-semibold rounded-lg transition">
+          GitHub · vectorize-io/hindsight
+        </a>
+      </div>
+    </div>
+  </section>
+  <footer class="border-t border-dark-600 py-10 px-6 text-center text-slate-500 text-sm">
+    <p>Hindsight Incident Copilot · Microsoft Hackathon Demo · Powered by <a href="https://hindsight.vectorize.io/" class="text-blue-400 hover:underline" target="_blank" rel="noopener">Hindsight</a> & Azure</p>
+    <p class="mt-2 text-xs">This is a front-end demonstration. Connect a real Hindsight server + Azure OpenAI for production use.</p>
+  </footer>
+  <script>
+    const RESPONSES = {
+      default: {
+        reply: `I've analyzed the current alert against our organizational memory bank powered by <strong>Hindsight</strong>.<br><br>
+<strong>Similar Incidents Found:</strong><br>
+• INC-2847 (Mar 2025) — PaymentService 502s after deploy → missing REDIS_HOST env var<br>
+• INC-3102 (Jun 2025) — Same service, connection pool exhaustion<br><br>
+<strong>Recommended Resolution:</strong><br>
+1. Check Application Insights for the exact exception stack<br>
+2. Verify environment variables in the latest deployment slot<br>
+3. Compare with last successful config (v2.2.8)<br>
+4. Restart the affected pods after config fix<br><br>
+Would you like me to pull the full post-mortem for INC-2847 or suggest the runbook?`,
+        evidence: [
+          { title: 'INC-2847 Post-Mortem', meta: 'Mar 12, 2025 · PaymentService · Resolved in 47m', similarity: 94, snippet: 'Root cause: Missing REDIS_HOST after blue-green deploy. Resolution: Added missing env var + restart.' },
+          { title: 'Runbook: PaymentService 5xx', meta: 'Last updated Jun 2025', similarity: 88, snippet: 'Standard steps for 502/503 on payment endpoints including cache and DB checks.' },
+          { title: 'INC-3102 Ticket', meta: 'Jun 3, 2025 · Connection pool', similarity: 76, snippet: 'High latency + 502s caused by exhausted connection pool under load test.' },
+        ]
+      },
+      database: {
+        reply: `<strong>Database latency spike detected.</strong> Hindsight recall found strong matches.<br><br>
+<strong>Root-cause pattern:</strong><br>
+In 4 of the last 6 similar incidents, the cause was long-running queries on the Orders table after a schema migration or missing index.<br><br>
+<strong>Recommended steps:</strong><br>
+1. Check Azure Monitor → Query Performance Insight for top queries<br>
+2. Look for recent schema changes in the last 24h<br>
+3. Temporary mitigation: scale read replicas<br>
+4. Permanent: add covering index on (customer_id, created_at)<br><br>
+I can open the exact runbook "DB Latency – Orders Service" or show the successful fix from INC-1991.`,
+        evidence: [
+          { title: 'INC-1991 Post-Mortem', meta: 'Jan 2025 · Orders DB · 32 min MTTR', similarity: 91, snippet: 'Missing index after migration. Added IX_Orders_CustomerCreated. Latency dropped 80%.' },
+          { title: 'Runbook: High DB Latency', meta: 'SRE Team · v3.2', similarity: 85, snippet: 'Diagnostic queries + mitigation steps for Azure SQL / Cosmos latency spikes.' },
+        ]
+      },
+      deploy: {
+        reply: `<strong>Deployment-related failure pattern identified.</strong><br><br>
+Hindsight's temporal + entity graph linked this to 3 prior incidents involving the same pipeline and the "config-sync" step.<br><br>
+<strong>Most relevant memory:</strong><br>
+INC-2650 (Feb 2025) — identical symptoms after canary. Root cause was a race condition in the config ConfigMap update.<br><br>
+<strong>Suggested action:</strong><br>
+1. Pause the current rollout<br>
+2. Diff the ConfigMap between canary and stable<br>
+3. Apply the known fix from the runbook (add readiness probe delay)<br>
+4. Resume with smaller canary percentage<br><br>
+Shall I generate the exact kubectl commands from the last successful remediation?`,
+        evidence: [
+          { title: 'INC-2650 Post-Mortem', meta: 'Feb 18, 2025 · Canary deploy', similarity: 96, snippet: 'Race in config-sync. Fix: increased readinessProbe initialDelaySeconds to 15.' },
+          { title: 'Runbook: Canary Rollback', meta: 'Platform Team', similarity: 82, snippet: 'Standard canary pause / inspect / rollback procedure.' },
+        ]
+      }
+    };
+    const SAMPLE_PROMPTS = [
+      'PaymentService returning 502s after latest deploy',
+      'High database latency on Orders service',
+      'Canary deployment failing health checks'
+    ];
+    const chatEl = document.getElementById('chat-messages');
+    const inputEl = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const evidenceEl = document.getElementById('evidence-list');
+    const promptsEl = document.getElementById('sample-prompts');
+    let isTyping = false;
+    function addMessage(role, html) {
+      const div = document.createElement('div');
+      div.className = 'max-w-[90%] px-4 py-3 rounded-xl text-sm leading-relaxed ' + (
+        role === 'user'
+          ? 'bg-blue-600 text-white self-end message-user ml-auto'
+          : 'bg-dark-700 border border-dark-600 self-start message-agent'
+      );
+      div.innerHTML = html;
+      chatEl.appendChild(div);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+    function showTyping() {
+      const div = document.createElement('div');
+      div.id = 'typing-indicator';
+      div.className = 'max-w-[90%] px-4 py-3 rounded-xl bg-dark-700 border border-dark-600 self-start message-agent';
+      div.innerHTML = '<div class="typing flex gap-1"><span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span><span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span><span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span></div>';
+      chatEl.appendChild(div);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+    function hideTyping() {
+      const t = document.getElementById('typing-indicator');
+      if (t) t.remove();
+    }
+    function renderEvidence(items) {
+      if (!items || !items.length) {
+        evidenceEl.innerHTML = '<p class="text-slate-500 text-sm">Evidence from memory will appear here after you send an incident description.</p>';
+        return;
+      }
+      evidenceEl.innerHTML = items.map(e => 
+        '<div class="bg-dark-800 border border-dark-600 rounded-lg p-3 mb-2.5 text-sm">' +
+          '<div class="font-semibold text-blue-400 mb-0.5">' + e.title + '</div>' +
+          '<div class="text-xs text-slate-500">' + e.meta + '</div>' +
+          '<p class="mt-1.5 text-slate-400">' + e.snippet + '</p>' +
+          '<div class="h-1 bg-dark-600 rounded-full mt-2 overflow-hidden">' +
+            '<div class="h-full bg-emerald-500 rounded-full sim-bar" style="width:' + e.similarity + '%"></div>' +
+          '</div>' +
+          '<div class="text-xs text-slate-500 mt-1">' + e.similarity + '% similarity</div>' +
+        '</div>'
+      ).join('');
+    }
+    function getKey(text) {
+      const l = text.toLowerCase();
+      if (l.includes('database') || l.includes('latency') || l.includes('orders')) return 'database';
+      if (l.includes('deploy') || l.includes('canary') || l.includes('health')) return 'deploy';
+      return 'default';
+    }
+    function handleSend(text) {
+      const userText = (text || inputEl.value).trim();
+      if (!userText || isTyping) return;
+      isTyping = true;
+      addMessage('user', userText);
+      inputEl.value = '';
+      renderEvidence([]);
+      showTyping();
+      const key = getKey(userText);
+      const resp = RESPONSES[key];
+      setTimeout(function() {
+        hideTyping();
+        addMessage('agent', resp.reply);
+        renderEvidence(resp.evidence);
+        isTyping = false;
+      }, 1300);
+    }
+    addMessage('agent', "Hello! I'm the <strong>Hindsight Incident Copilot</strong>. I remember every past incident, post-mortem, and runbook in your organization.<br><br>Describe a production issue or paste an alert, and I'll find similar past incidents and recommend the fastest resolution path.");
+    SAMPLE_PROMPTS.forEach(function(p) {
+      const btn = document.createElement('button');
+      btn.className = 'text-xs px-3 py-1.5 bg-dark-700 border border-dark-600 rounded-md text-slate-400 hover:border-blue-500 hover:text-white transition';
+      btn.textContent = p;
+      btn.onclick = function() { handleSend(p); };
+      promptsEl.appendChild(btn);
+    });
+    sendBtn.onclick = function() { handleSend(); };
+    inputEl.onkeydown = function(e) { if (e.key === 'Enter') handleSend(); };
+  </script>
+</body>
+</html>

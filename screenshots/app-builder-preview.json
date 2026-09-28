@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Hindsight Incident Copilot",
+      "hasCanvas": false,
+      "bodyTextLen": 3147,
+      "bodyTextHash": "04edad4e34197c1606acd86eaf0f253f68c46064b27e9f1669f305efb1061ecf",
+      "bodyTextPrefix": "Hindsight Incident Copilot Features Demo Architecture Impact Ope",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Hindsight Incident Copilot",
+      "hasCanvas": false,
+      "bodyTextLen": 3103,
+      "bodyTextHash": "d71c409177f553ab3b2fea9ed32ebdb22c6629c018d0785b115de06e833a3cbf",
+      "bodyTextPrefix": "Hindsight Incident Copilot Microsoft hackathon · Hindsight memor",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
